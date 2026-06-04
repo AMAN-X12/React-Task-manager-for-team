@@ -10,7 +10,7 @@ const Login = () => {
     e.preventDefault();
     try {
       // withCredentials ensures the browser saves the session cookie!
-      await axios.post('http://localhost:5000/auth/login', formData, {
+      await axios.post('import.meta.env.VITE_API_URL/auth/login', formData, {
         withCredentials: true
       });
       navigate('/dashboard');

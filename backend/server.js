@@ -15,6 +15,7 @@ app.use(cors({
     origin: 'http://localhost:5173',
     credentials: true
 }));
+app.set('trust proxy', 1);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -26,9 +27,11 @@ app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    cookie: {
+   cookie: {
       maxAge: 1000 * 60 * 60 * 24,
-      httpOnly: true
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // true on Render
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
     }
 }));
 

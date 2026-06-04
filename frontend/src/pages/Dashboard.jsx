@@ -20,7 +20,7 @@ const Dashboard = () => {
 
   const fetchTeams = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/teams', { withCredentials: true });
+      const res = await axios.get('import.meta.env.VITE_API_URL/teams', { withCredentials: true });
       setTeams(res.data);
     } catch (err) {
       if (err.response?.status === 401) navigate('/login');
@@ -30,7 +30,7 @@ const Dashboard = () => {
   const handleCreateTeam = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/teams', { name: newTeamName, description: 'New Team' }, { withCredentials: true });
+      await axios.post('import.meta.env.VITE_API_URL/teams', { name: newTeamName, description: 'New Team' }, { withCredentials: true });
       setNewTeamName('');
       fetchTeams();
     } catch (err) {
@@ -41,7 +41,7 @@ const Dashboard = () => {
   const handleSelectTeam = async (team) => {
     setSelectedTeam(team);
     try {
-      const res = await axios.get(`http://localhost:5000/tasks/team/${team.id}`, { withCredentials: true });
+      const res = await axios.get(`import.meta.env.VITE_API_URL/tasks/team/${team.id}`, { withCredentials: true });
       setTasks(res.data);
     } catch (err) {
       alert('Failed to fetch tasks');
@@ -52,7 +52,7 @@ const Dashboard = () => {
   const handleCreateTask = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/tasks', {
+      await axios.post('import.meta.env.VITE_API_URL/tasks', {
         ...taskForm,
         team_id: selectedTeam.id
       }, { withCredentials: true });
@@ -67,7 +67,7 @@ const Dashboard = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post('http://localhost:5000/auth/logout', {}, { withCredentials: true });
+      await axios.post('import.meta.env.VITE_API_URL/auth/logout', {}, { withCredentials: true });
       navigate('/login');
     } catch (err) {
       console.error(err);
