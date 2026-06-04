@@ -24,7 +24,7 @@ pool.query("SELECT NOW()", (err,res)=>{
 
     }
     else{
-        console.log("connection sucessful");
+        console.log("execution sucessful");
     }
 })
-module.export= pool;
+module.exports= pool;
