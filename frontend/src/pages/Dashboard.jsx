@@ -20,7 +20,7 @@ const Dashboard = () => {
 
   const fetchTeams = async () => {
     try {
-      const res = await axios.get('import.meta.env.VITE_API_URL/teams', { withCredentials: true });
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/teams`, { withCredentials: true });
       setTeams(res.data);
     } catch (err) {
       if (err.response?.status === 401) navigate('/login');
@@ -30,7 +30,7 @@ const Dashboard = () => {
   const handleCreateTeam = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('import.meta.env.VITE_API_URL/teams', { name: newTeamName, description: 'New Team' }, { withCredentials: true });
+      await axios.post(`${import.meta.env.VITE_API_URL}/teams`, { name: newTeamName, description: 'New Team' }, { withCredentials: true });
       setNewTeamName('');
       fetchTeams();
     } catch (err) {
@@ -41,7 +41,7 @@ const Dashboard = () => {
   const handleSelectTeam = async (team) => {
     setSelectedTeam(team);
     try {
-      const res = await axios.get(`import.meta.env.VITE_API_URL/tasks/team/${team.id}`, { withCredentials: true });
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/tasks/team/${team.id}`, { withCredentials: true });
       setTasks(res.data);
     } catch (err) {
       alert('Failed to fetch tasks');
@@ -52,7 +52,7 @@ const Dashboard = () => {
   const handleCreateTask = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('import.meta.env.VITE_API_URL/tasks', {
+      await axios.post(`${import.meta.env.VITE_API_URL}/tasks`, {
         ...taskForm,
         team_id: selectedTeam.id
       }, { withCredentials: true });
@@ -67,7 +67,7 @@ const Dashboard = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post('import.meta.env.VITE_API_URL/auth/logout', {}, { withCredentials: true });
+      await axios.post(`${import.meta.env.VITE_API_URL}/auth/logout`, {}, { withCredentials: true });
       navigate('/login');
     } catch (err) {
       console.error(err);
@@ -75,10 +75,10 @@ const Dashboard = () => {
   };
 
   // --- NEW: Filter tasks based on search bar ---
-  const filteredTasks = tasks.filter(task =>
+  const filteredTasks = Array.isArray(tasks) ? tasks.filter(task =>
     task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (task.description && task.description.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  ) : [];
 
   return (
     <div className="min-h-screen bg-gray-100 p-8 text-gray-900">
@@ -101,8 +101,8 @@ const Dashboard = () => {
               <button type="submit" className="bg-blue-500 text-white px-4 rounded-r hover:bg-blue-600">+</button>
             </form>
             <ul>
-              {teams.length === 0 ? <p className="text-gray-500 text-sm">No teams yet.</p> : null}
-              {teams.map(team => (
+              {Array.isArray(teams) && teams.length === 0 ? <p className="text-gray-500 text-sm">No teams yet.</p> : null}
+              {Array.isArray(teams) && teams.map(team => (
                 <li
                   key={team.id}
                   onClick={() => handleSelectTeam(team)}
