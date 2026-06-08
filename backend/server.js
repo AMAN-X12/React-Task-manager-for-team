@@ -9,9 +9,13 @@ const pool = require('./config/db');
 
 const app = express();
 
+// MUST be first — tells Express to trust the Render proxy so
+// req.secure is correct, which makes secure cookies work.
+app.set('trust proxy', 1);
+
 require('./config/passport')(passport);
 
-// --- UPDATED CORS CONFIGURATION ---
+// --- CORS: allow both local dev and the live Render frontend ---
 const allowedOrigins = [
   'http://localhost:5173',
   'https://team-task-frontend-hyl0.onrender.com'
@@ -19,18 +23,21 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
+    // Allow requests with no origin (e.g. curl, mobile apps)
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true
+  credentials: true  // Required so the browser sends/receives cookies
 }));
-app.set('trust proxy', 1);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// --- SESSION: sameSite:'none' + secure:true lets the cookie cross
+//     different Render subdomains (frontend.onrender.com -> backend.onrender.com)
 app.use(session({
     store: new pgSession({
       pool: pool,
@@ -40,8 +47,9 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-      maxAge: 1000 * 60 * 60 * 24,
+      maxAge: 1000 * 60 * 60 * 24, // 24 hours
       httpOnly: true,
+      // In production (Render) we MUST have secure:true for sameSite:'none' to work
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
     }
