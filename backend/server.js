@@ -11,10 +11,24 @@ const app = express();
 
 require('./config/passport')(passport);
 
+// --- UPDATED CORS CONFIGURATION ---
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://team-task-frontend-hyl0.onrender.com'
+];
+
 app.use(cors({
-    origin: 'http://localhost:5173',
-    credentials: true
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
 }));
+// ----------------------------------
+
 app.set('trust proxy', 1);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -27,10 +41,10 @@ app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-   cookie: {
+    cookie: {
       maxAge: 1000 * 60 * 60 * 24,
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // true on Render
+      secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
     }
 }));
@@ -45,12 +59,12 @@ const taskRoutes = require('./routes/taskRoutes');
 app.use('/auth', authRoutes);
 app.use('/teams', teamRoutes);
 app.use('/tasks', taskRoutes);
+
 app.get('/', (req, res) => {
     res.send('Team Task Manager API is running!');
 });
 
-
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(` Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
